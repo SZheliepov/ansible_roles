@@ -1,0 +1,38 @@
+- name: ensure docker volume mapping host directories exist
+  file:
+    state: directory
+    path: "{{ item | regex_replace('^(?P<host>.+):(?P<container>.+):(?P<mode>.+)', '\\g<host>') }}"
+  with_items:
+    - "{{ docker_artifactory_directory_volumes }}"
+
+- name: remove existing {{ docker_artifactory_name }} container
+  docker_container:
+    image: "{{ docker_artifactory_image }}"
+    name: "{{ docker_artifactory_name }}"
+    state: absent
+
+- name: copy data volume to {{ docker_artifactory_new_host }}
+  tags: sync-pull
+  synchronize:
+    src: "{{ docker_artifactory_host_data_dir }}"
+    dest: "{{ docker_artifactory_host_data_dir }}"
+    mode: pull
+  delegate_to: "{{ docker_artifactory_new_host }}"
+  register: syncfile
+
+- name: Run docker artifactory container
+  docker_container:
+    name: "{{ docker_artifactory_name }}"
+    expose: "{{ docker_artifactory_expose }}"
+    image: "{{ docker_artifactory_image }}"
+    links: "{{ docker_artifactory_links }}"
+    volumes: "{{ docker_artifactory_directory_volumes }}"
+    ports: "{{ docker_artifactory_ports }}"
+    ulimits: "{{ item }}"
+    command: "/entrypoint-artifactory.sh"
+    pull: no
+    restart_policy: always
+    state: started
+  with_items:
+    - "nproc:65535:65535"
+    - "nofile:40000:40000"

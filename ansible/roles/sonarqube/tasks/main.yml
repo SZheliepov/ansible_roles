@@ -1,0 +1,64 @@
+---
+#### Launch PostgreSQL container ############
+
+- name: Ensure docker volume mapping host directories exist
+  file:
+    state: directory
+    path: "{{ item | regex_replace('^(?P<host>.+):(?P<container>.+):(?P<mode>.+)', '\\g<host>') }}"
+    mode: '0700'
+  with_items:
+    - "{{ docker_postgres_volumes }}"
+
+- name: Remove existing {{ docker_postgres_name }} container
+  docker_container:
+    image: "{{ docker_postgres_image }}"
+    name: "{{ docker_postgres_name }}"
+    state: absent
+
+- name: Run PostgreSQL container
+  docker_container:
+    name: "{{ docker_postgres_name }}"
+    env: "{{ docker_postgres_env }}"
+    expose: "{{ docker_postgres_expose }}"
+    image: "{{ docker_postgres_image }}"
+    links: "{{ docker_postgres_links }}"
+    volumes: "{{ docker_postgres_volumes }}"
+    ports: "{{ docker_postgres_ports }}"
+    restart_policy: always
+    state: started
+  register: postgres_container
+  ignore_errors: yes
+
+- name: Wait until PostgreSQL starts up
+  wait_for:
+    port: '5432'
+    delay: 5
+  when: postgres_container.changed
+
+
+
+#### Launch Sonarqube container ############
+- name: Remove existing {{ docker_sonarqube_image }} container
+  docker_container:
+    image: "{{ docker_sonarqube_image }}"
+    name: "{{ docker_sonarqube_name }}"
+    state: absent
+
+- name: Launch sonarqube container
+  docker_container:
+    name: "{{ docker_artifactory_name }}"
+    image: "{{ docker_artifactory_image }}"
+    restart_policy: always
+    pull: no
+    ports: "{{ docker_sonarqube_ports }}"
+    links: "{{ docker_postgres_name }}"
+    env:  "{{ docker_sonarqube_env }}"
+  tags: sonarqube
+  register: sonarqube
+  ignore_errors: yes
+
+- name: Wait until Sonarqube starts up
+  wait_for:
+    port: '9000'
+    delay: 5
+  when: sonarqube.changed

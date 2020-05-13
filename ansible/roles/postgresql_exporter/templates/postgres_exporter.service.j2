@@ -1,0 +1,18 @@
+[Unit]
+Description=Prometheus exporter for Postgresql
+
+
+[Service]
+WorkingDirectory=/opt/postgres_exporter
+ExecStart=/opt/postgres_exporter/postgres_exporter_v{{ postgres_exporter_version }}_linux-amd64/postgres_exporter \
+--web.listen-address=:9187 \
+--web.telemetry-path=/metrics \
+--extend.query-path=/opt/postgres_exporter/queries.yaml
+User={{ postgres_exporter_user }}
+Group={{ postgres_exporter_user }}
+Restart=always
+Environment="DATA_SOURCE_NAME=postgresql://postgres:postgres@localhost:5432/postgres?sslmode=disable"
+
+
+[Install]
+WantedBy=multi-user.target

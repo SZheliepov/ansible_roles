@@ -1,0 +1,4 @@
+postgres_exporter_version: "0.8.0"
+postgres_exporter_src: https://github.com/wrouesnel/postgres_exporter/releases/download/v{{ postgres_exporter_version }}/postgres_exporter_v{{ postgres_exporter_version }}_linux-amd64.tar.gz
+postgres_exporter_dest: /opt/postgres_exporter
+postgres_exporter_user: postgres
