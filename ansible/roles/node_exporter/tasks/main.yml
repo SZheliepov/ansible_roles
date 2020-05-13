@@ -53,7 +53,7 @@
 
 - name: Add newly installed hosts to Prometheus
   blockinfile:
-    dest: /home/alm_tools_admin/prometheus-grafana-alertmanager-example/prometheus/prometheus.yml
+    dest: /home/admin/prometheus-grafana-alertmanager-example/prometheus/prometheus.yml
     marker: "## Added by ansible configuration"
     block: |2
        - job_name: '{{ ansible_hostname }}'
@@ -62,9 +62,9 @@
          static_configs:
            - targets: ['{{ ansible_hostname }}:9100']
     state: present
-  delegate_to: 172.25.43.131
+  delegate_to: 127.0.0.1
 
 - name: Apply changes in Prometheus
   uri:
-    url: http://172.25.43.131:9090/-/reload
+    url: http://127.0.0.1:9090/-/reload
     method: POST
