@@ -1,8 +1,0 @@
----
-serviceName: "node_exporter"
-userId: "node_exporter"
-groupId: "node_exporter"
-exec_command: /usr/local/bin/node_exporter
-version: 0.18.1
-node_version: https://github.com/prometheus/node_exporter/releases/download/v0.18.1/node_exporter-0.18.1.darwin-386.tar.gz
-dest_path: /tmp

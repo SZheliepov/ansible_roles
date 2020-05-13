@@ -1,4 +1,0 @@
-- name: reload systemctl
-  command: systemctl daemon-reload
-- name: restart postgres_exporter
-  command: service postgres_exporter restart
