@@ -1,0 +1,43 @@
+---
+docker_sonarqube_name: sonarqube791
+docker_sonarqube_image: sonarqube:7.9.1-community
+docker_sonarqube_expose:
+  - '9000'
+  - '9092'
+  - '19000'
+  - '19092'
+docker_sonarqube_ports:
+  - '9000:9000'
+  - '9092:9092'
+  - '19000:19000'
+  - '19092:19092'
+docker_sonarqube_env:
+  SONAR_WEB_PREFIX: /sonarqube
+  SONARQUBE_JDBC_USERNAME: postgres
+  SONARQUBE_JDBC_PASSWORD: postgres
+  SONARQUBE_JDBC_URL: jdbc:postgresql://data_postgres_1:5432/postgres
+
+
+
+######### PostgreSQL ENV
+docker_postgres_name: data_postgres_1
+docker_postgres_image: postgres:9.6
+docker_postgres_expose:
+  - '5432'
+docker_postgres_ports:
+  - '5432:5432'
+docker_postgres_container_data_dir: /var/lib/postgresql/9.5/main
+docker_postgres_host_data_dir: /data/.postgres/dbinit
+docker_postgres_host_log_dir: /data/.postgres/logs
+docker_postgres_container_log_dir: /var/log/postgresql
+docker_postgres_env:
+  PGDATA: "{{ docker_postgres_container_data_dir }}"
+  POSTGRES_USER: postgres
+  POSTGRES_DB: postgres
+  POSTGRES_PASSWORD: postgres
+docker_postgres_links: []
+docker_postgres_file_volumes: []
+docker_postgres_directory_volumes:
+  - "{{ docker_postgres_host_data_dir }}:{{ docker_postgres_container_data_dir }}:rw"
+  - "{{ docker_postgres_host_log_dir }}:{{ docker_postgres_container_log_dir }}:rw"
+docker_postgres_volumes: "{{ docker_postgres_directory_volumes + docker_postgres_file_volumes }}"
